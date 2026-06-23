@@ -1,0 +1,326 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[indonesian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=3cm}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\setstretch{1.2}
+
+\begin{document}
+
+%====================================================
+% COVER
+%====================================================
+
+\begin{titlepage}
+\centering
+
+\vspace*{2cm}
+
+{\Huge \textbf{LAPORAN AKHIR IMK}}\\[1cm]
+
+{\Large ReadLexia: Learn How to Read and Write for Dyslexia Children}\\[2cm]
+
+\includegraphics[width=0.3\textwidth]{logo.png}\\[2cm]
+
+{\large
+\textbf{Anggota Kelompok}
+}
+
+\vspace{0.5cm}
+
+\begin{tabular}{ll}
+1. Maleka Ghaniyta & 5025241189\\
+2. Denzel Daniels & 5025241228\\
+\end{tabular}
+
+\vfill
+
+{\large
+Departemen Teknik Informatika\\
+Institut Teknologi Sepuluh Nopember\\
+2024
+}
+
+\end{titlepage}
+
+%====================================================
+% PEMBAGIAN TUGAS
+%====================================================
+
+\chapter*{Pembagian Tugas}
+\addcontentsline{toc}{chapter}{Pembagian Tugas}
+
+\begin{enumerate}
+\item Maleka Ghaniya (5025241189)
+\begin{itemize}
+\item Pengembangan Front-End
+\item Implementasi Antarmuka Pengguna
+\end{itemize}
+
+\item Denzel Daniels (5025241228)
+\begin{itemize}
+\item Desain UI/UX
+\item Evaluasi Usability
+\end{itemize}
+
+\end{enumerate}
+
+%====================================================
+% DAFTAR TASK
+%====================================================
+
+\chapter*{Daftar Task Utama}
+\addcontentsline{toc}{chapter}{Daftar Task Utama}
+
+\section*{Navigasi dan Menu}
+\begin{itemize}
+\item Layar Utama (Home Screen)
+\item Panduan Orangtua
+\item Menu Play
+\end{itemize}
+
+\section*{Modul Permainan}
+\begin{itemize}
+\item Game 1: Menulis/Menebalkan Huruf
+\item Game 2: Merangkai Huruf Menjadi Kata
+\item Game 3: Find Words (Matriks Huruf)
+\item Game 4: Membaca Kalimat (Menggunakan Suara)
+\item Game 5: Memasukkan Barang ke Dalam Kotak
+\end{itemize}
+
+\section*{Aksesibilitas dan Interaksi}
+\begin{itemize}
+\item Asisten Suara
+\end{itemize}
+
+%====================================================
+% DAFTAR UI
+%====================================================
+
+\chapter*{Daftar User Interface}
+\addcontentsline{toc}{chapter}{Daftar User Interface}
+
+\begin{enumerate}
+\item Halaman Awal
+    \begin{itemize}
+    \item Menu Play (Ke Halaman Utama)
+    \item Panduan Orangtua
+    \item Asisten Suara
+    \end{itemize}
+
+\item Halaman Utama
+    \begin{itemize}
+    \item Daftar Pilihan Game
+    \item Asisten Suara
+    \end{itemize}
+
+\item Halaman Game 1: Menulis/Menebalkan Huruf
+    \begin{itemize}
+    \item Pilihan Level/Tingkatan (1-3)
+    \item Asisten Suara
+    \end{itemize}
+
+\item Halaman Game 1: Menulis/Menebalkan Huruf - Level 1, 2, dan 3
+    \begin{itemize}
+    \item Area Tracing (Garis Putus-Putus)
+    \item Asisten Suara
+    \end{itemize}
+
+\item Halaman Game 3:
+    \begin{itemize}
+    \item Profil Pribadi
+    \item Edit Profil
+    \item Profil Donatur Lain
+    \end{itemize}
+
+\item Halaman Game 4:
+    \begin{itemize}
+    \item Profil Pribadi
+    \item Edit Profil
+    \item Profil Donatur Lain
+    \end{itemize}
+
+\item Halaman Game 5:
+    \begin{itemize}
+    \item Profil Pribadi
+    \item Edit Profil
+    \item Profil Donatur Lain
+    \end{itemize}
+
+\item Halaman Game 1:
+    \begin{itemize}
+    \item Profil Pribadi
+    \item Edit Profil
+    \item Profil Donatur Lain
+    \end{itemize}
+
+\end{enumerate}
+
+%====================================================
+% DAFTAR ISI
+%====================================================
+
+\tableofcontents
+\newpage
+
+%====================================================
+% USER MANUAL
+%====================================================
+
+\chapter{Pendahuluan}
+
+\section{Tujuan Pembuatan Dokumen}
+Tuliskan tujuan pembuatan dokumen.
+
+\section{Deskripsi Aplikasi}
+Tuliskan deskripsi aplikasi secara lengkap.
+
+\section{Deskripsi Dokumen}
+Tuliskan penjelasan isi dokumen.
+
+\section{Perangkat yang Dibutuhkan}
+\begin{itemize}
+\item Laptop / Smartphone
+\item Browser
+\item Koneksi Internet
+\item Akun pengguna
+\end{itemize}
+
+%====================================================
+
+\chapter{User Manual}
+
+\section{Halaman Autentikasi}
+
+\subsection{Registrasi Akun}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{register.png}
+\caption{Halaman Registrasi}
+\end{figure}
+
+Penjelasan fitur registrasi.
+
+\subsection{Login}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{login.png}
+\caption{Halaman Login}
+\end{figure}
+
+Penjelasan fitur login.
+
+%====================================================
+
+\section{Halaman Utama}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{home.png}
+\caption{Halaman Beranda}
+\end{figure}
+
+\subsection{Statistik Donasi}
+Penjelasan.
+
+\subsection{Kategori}
+Penjelasan.
+
+\subsection{Donasi Terbaru}
+Penjelasan.
+
+%====================================================
+
+\section{Halaman Donasi}
+
+\subsection{Sebagai Donatur}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{donasi.png}
+\caption{Form Donasi}
+\end{figure}
+
+Penjelasan form donasi.
+
+\subsection{Sebagai Penerima}
+Penjelasan fitur pencarian, filter, detail barang, dan chat.
+
+%====================================================
+
+\section{Halaman Chat}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{chat.png}
+\caption{Halaman Chat}
+\end{figure}
+
+Penjelasan fitur chat.
+
+%====================================================
+
+\section{Halaman Profil}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{profile.png}
+\caption{Halaman Profil}
+\end{figure}
+
+\subsection{Profil Sendiri}
+Penjelasan.
+
+\subsection{Profil Pengguna Lain}
+Penjelasan.
+
+\subsection{Edit Profil}
+Penjelasan.
+
+%====================================================
+
+\section{Halaman Riwayat}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{history.png}
+\caption{Halaman Riwayat}
+\end{figure}
+
+Penjelasan riwayat transaksi dan ulasan.
+
+%====================================================
+
+\chapter{Panduan Cepat Navigasi}
+
+\section{Beranda}
+Deskripsi singkat.
+
+\section{Donasi}
+Deskripsi singkat.
+
+\section{Riwayat}
+Deskripsi singkat.
+
+\section{Ulasan}
+Deskripsi singkat.
+
+\section{Profil}
+Deskripsi singkat.
+
+%====================================================
+
+\end{document}
