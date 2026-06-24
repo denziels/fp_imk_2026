@@ -59,6 +59,7 @@ class SpellingLevelScreen extends StatelessWidget {
                       imageIcon: Icons.set_meal,
                       iconColor: Colors.blueGrey,
                       availableLetters: ['N', 'K', 'I', 'A', 'U'],
+                      level: 1,
                     ));
                   },
                 ),
@@ -74,6 +75,7 @@ class SpellingLevelScreen extends StatelessWidget {
                       imageIcon: Icons.directions_car,
                       iconColor: Colors.red,
                       availableLetters: ['M', 'I', 'B', 'L', 'O', 'S', 'P'],
+                      level: 2,
                     ));
                   },
                 ),
@@ -89,6 +91,7 @@ class SpellingLevelScreen extends StatelessWidget {
                       imageIcon: Icons.flight,
                       iconColor: Colors.blue,
                       availableLetters: ['P', 'E', 'S', 'A', 'W', 'T', 'R', 'K', 'M'],
+                      level: 3,
                     ));
                   },
                 ),

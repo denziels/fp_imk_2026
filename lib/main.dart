@@ -5,8 +5,21 @@ import 'screens/landing_screen.dart';
 import 'services/tts_service.dart';
 import 'controllers/font_controller.dart';
 
-void main() {
+import 'services/storage_service.dart';
+import 'controllers/auth_controller.dart';
+import 'controllers/progress_controller.dart';
+import 'controllers/stats_controller.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  final storage = StorageService();
+  await storage.init();
+  Get.put(storage, permanent: true);
+  Get.put(AuthController(), permanent: true);
+  Get.put(ProgressController(), permanent: true);
+  Get.put(StatsController(), permanent: true);
+  
   Get.put(TTSService());
   Get.put(FontController(), permanent: true);
   runApp(const ReadLexiaApp());

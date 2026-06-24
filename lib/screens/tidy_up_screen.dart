@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../widgets/shared_background.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
+import '../widgets/result_dialog.dart';
 
 class ToyItem {
   final int id;
@@ -141,12 +142,23 @@ class _TidyUpScreenState extends State<TidyUpScreen> {
                           toys.removeWhere((toy) => toy.id == details.data);
                         });
                         if (toys.isEmpty) {
-                          Get.snackbar(
-                            'Selesai!',
-                            'Semua mainan sudah rapi di dalam kotak!',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.green,
-                            colorText: Colors.white,
+                          showResultDialog(
+                            isCorrect: true,
+                            gameId: 'tidy_up',
+                            gameName: 'Beres-beres',
+                            level: widget.levelType,
+                            onReplay: () {
+                              setState(() {
+                                toys = [
+                                  ToyItem(1, Icons.smart_toy, Colors.blue),
+                                  ToyItem(2, Icons.directions_car, Colors.red),
+                                  ToyItem(3, Icons.pedal_bike, Colors.green),
+                                  ToyItem(4, Icons.flight, Colors.orange),
+                                ];
+                                matchedToyIds.clear();
+                              });
+                              Get.back();
+                            },
                           );
                         }
                       },
@@ -164,12 +176,23 @@ class _TidyUpScreenState extends State<TidyUpScreen> {
                             matchedToyIds.add(details.data);
                           });
                           if (toys.isEmpty) {
-                            Get.snackbar(
-                              'Hebat!',
-                              'Kamu berhasil mencocokkan semua bentuk!',
-                              snackPosition: SnackPosition.TOP,
-                              backgroundColor: Colors.green,
-                              colorText: Colors.white,
+                            showResultDialog(
+                              isCorrect: true,
+                              gameId: 'tidy_up',
+                              gameName: 'Beres-beres',
+                              level: widget.levelType,
+                              onReplay: () {
+                                setState(() {
+                                  toys = [
+                                    ToyItem(1, Icons.smart_toy, Colors.blue),
+                                    ToyItem(2, Icons.directions_car, Colors.red),
+                                    ToyItem(3, Icons.pedal_bike, Colors.green),
+                                    ToyItem(4, Icons.flight, Colors.orange),
+                                  ];
+                                  matchedToyIds.clear();
+                                });
+                                Get.back();
+                              },
                             );
                           }
                         },

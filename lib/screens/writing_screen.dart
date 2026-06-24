@@ -5,12 +5,14 @@ import 'package:get/get.dart';
 import '../widgets/shared_background.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
+import '../widgets/result_dialog.dart';
 import '../utils/stroke_text_renderer.dart';
 
 class WritingScreen extends StatefulWidget {
   final String content;
+  final int level;
 
-  const WritingScreen({super.key, this.content = 'A'});
+  const WritingScreen({super.key, this.content = 'A', required this.level});
 
   @override
   State<WritingScreen> createState() => _WritingScreenState();
@@ -18,7 +20,27 @@ class WritingScreen extends StatefulWidget {
 
 class _WritingScreenState extends State<WritingScreen> {
   List<Offset?> _points = [];
+  List<List<Offset?>> _undoStack = [];
+  List<List<Offset?>> _redoStack = [];
   bool _isErasing = false;
+
+  void _undo() {
+    if (_undoStack.isNotEmpty) {
+      setState(() {
+        _redoStack.add(List.from(_points));
+        _points = _undoStack.removeLast();
+      });
+    }
+  }
+
+  void _redo() {
+    if (_redoStack.isNotEmpty) {
+      setState(() {
+        _undoStack.add(List.from(_points));
+        _points = _redoStack.removeLast();
+      });
+    }
+  }
 
   void _erasePoints(Offset position) {
     double eraserRadius = 20.0;
@@ -31,6 +53,8 @@ class _WritingScreenState extends State<WritingScreen> {
 
   void _clearCanvas() {
     setState(() {
+      _undoStack.add(List.from(_points));
+      _redoStack.clear();
       _points.clear();
     });
   }
@@ -63,7 +87,7 @@ class _WritingScreenState extends State<WritingScreen> {
     if (width < 10) width = 10;
     if (height < 10) height = 10;
 
-    // Normalize user points to 0..1 scale
+    // Normalize user points to 0..1 scale (Stretch to bounds to ignore aspect ratio/spacing variations)
     List<Offset?> normalizedPoints = _points.map((p) {
       if (p == null) return null;
       return Offset((p.dx - minX) / width, (p.dy - minY) / height);
@@ -88,7 +112,7 @@ class _WritingScreenState extends State<WritingScreen> {
     if (iWidth < 1) iWidth = 1;
     if (iHeight < 1) iHeight = 1;
 
-    // Normalize ideal polylines to 0..1 scale
+    // Normalize ideal polylines to 0..1 scale (Stretch to bounds)
     List<List<Offset>> normalizedIdealPolylines = [];
     for (var polyline in idealPolylines) {
       List<Offset> np = [];
@@ -97,6 +121,42 @@ class _WritingScreenState extends State<WritingScreen> {
       }
       normalizedIdealPolylines.add(np);
     }
+
+    // Dynamic tolerances based on text length
+    int textLen = widget.content.length > 0 ? widget.content.length : 1;
+    
+    // Hitung jumlah coretan (strokes)
+    int strokeCount = 0;
+    bool inStroke = false;
+    for (var p in _points) {
+      if (p != null) {
+        if (!inStroke) {
+          strokeCount++;
+          inStroke = true;
+        }
+      } else {
+        inStroke = false;
+      }
+    }
+
+    // Jika kata lebih dari 1 huruf, mustahil ditulis dengan 1 coretan tanpa diangkat (mencegah trik lingkaran besar)
+    if (textLen > 1 && strokeCount < 2) {
+      showResultDialog(
+        isCorrect: false,
+        gameId: 'writing',
+        gameName: 'Menulis',
+        level: widget.level,
+        onReplay: () {
+          _clearCanvas();
+          Get.back();
+        },
+      );
+      return;
+    }
+
+    // 3. Strict Path Confinement
+    // Toleransi: 25% universal
+    double maxDeviation = 0.25;
 
     // Helper: distance to segment
     double distanceToSegment(Offset p, Offset a, Offset b) {
@@ -108,13 +168,36 @@ class _WritingScreenState extends State<WritingScreen> {
       return (p - projection).distance;
     }
 
-    // Dynamic tolerances based on text length
-    int textLen = widget.content.length > 0 ? widget.content.length : 1;
+    // Calculate total length of user's drawing in normalized space
+    double userDrawingLength = 0;
+    for (int i = 0; i < normalizedPoints.length - 1; i++) {
+      if (normalizedPoints[i] != null && normalizedPoints[i+1] != null) {
+        userDrawingLength += (normalizedPoints[i]! - normalizedPoints[i+1]!).distance;
+      }
+    }
     
-    // 3. Strict Path Confinement
-    // Base tolerance is 35% for 1 letter, scales down for more letters
-    double maxDeviation = 0.35 / textLen; 
-    if (maxDeviation < 0.1) maxDeviation = 0.1;
+    // Calculate total length of ideal drawing in normalized space
+    double idealDrawingLength = 0;
+    for (var polyline in normalizedIdealPolylines) {
+      for (int i = 0; i < polyline.length - 1; i++) {
+        idealDrawingLength += (polyline[i] - polyline[i+1]).distance;
+      }
+    }
+
+    // Cegah coret-coret asal
+    if (userDrawingLength > idealDrawingLength * 2.5) {
+      showResultDialog(
+        isCorrect: false,
+        gameId: 'writing',
+        gameName: 'Menulis',
+        level: widget.level,
+        onReplay: () {
+          _clearCanvas();
+          Get.back();
+        },
+      );
+      return;
+    }
 
     for (var point in normalizedPoints) {
       if (point != null) {
@@ -126,7 +209,16 @@ class _WritingScreenState extends State<WritingScreen> {
           }
         }
         if (minDistance > maxDeviation) {
-          Get.snackbar('Coba Lagi!', 'Bentuk tulisanmu kurang tepat, ayo perbaiki lagi!', backgroundColor: Colors.orange, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          showResultDialog(
+            isCorrect: false,
+            gameId: 'writing',
+            gameName: 'Menulis',
+            level: widget.level,
+            onReplay: () {
+              _clearCanvas();
+              Get.back();
+            },
+          );
           return;
         }
       }
@@ -134,9 +226,10 @@ class _WritingScreenState extends State<WritingScreen> {
 
     // 4. Positive Checkpoints per polyline
     double step = 0.1;
-    double checkRadius = 0.3 / textLen;
-    if (checkRadius < 0.1) checkRadius = 0.1;
+    // Radius pengecekan: 25% universal. Cukup besar untuk menangkap garis melintang (crossbar) yang ditulis agak tinggi/rendah.
+    double checkRadius = 0.25;
     
+    bool allPolylinesPassed = true;
     for (var polyline in normalizedIdealPolylines) {
       List<Offset> polylineCheckpoints = [];
       for (int i = 0; i < polyline.length - 1; i++) {
@@ -162,20 +255,38 @@ class _WritingScreenState extends State<WritingScreen> {
         if (passed) passedForPolyline++;
       }
 
-      double coverage = passedForPolyline / polylineCheckpoints.length;
-      if (coverage < 0.6) {
-        Get.snackbar('Coba Lagi!', 'Tulisanmu belum lengkap, ada garis yang terlewat!', backgroundColor: Colors.orange, colorText: Colors.white, snackPosition: SnackPosition.TOP);
-        return;
+      double coverage = polylineCheckpoints.isEmpty ? 0 : passedForPolyline / polylineCheckpoints.length;
+      double requiredCoverage = 0.45; // 45% universal.
+
+      if (coverage < requiredCoverage) {
+        allPolylinesPassed = false;
+        break;
       }
     }
 
-    Get.snackbar(
-      'Hebat!',
-      'Tulisan kamu sangat bagus!',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-    );
+    if (allPolylinesPassed) {
+      showResultDialog(
+        isCorrect: true,
+        gameId: 'writing',
+        gameName: 'Menulis',
+        level: widget.level,
+        onReplay: () {
+          _clearCanvas();
+          Get.back();
+        },
+      );
+    } else {
+      showResultDialog(
+        isCorrect: false,
+        gameId: 'writing',
+        gameName: 'Menulis',
+        level: widget.level,
+        onReplay: () {
+          _clearCanvas();
+          Get.back();
+        },
+      );
+    }
   }
 
   @override
@@ -229,15 +340,83 @@ class _WritingScreenState extends State<WritingScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        Container(
+                          decoration: !_isErasing
+                              ? BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : null,
+                          child: IconButton(
+                            icon: Icon(Icons.edit, size: 30, color: !_isErasing ? Colors.blue : Colors.grey),
+                            onPressed: () => setState(() => _isErasing = false),
+                            tooltip: 'Pensil',
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          decoration: _isErasing
+                              ? BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : null,
+                          child: IconButton(
+                            icon: SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned(
+                                    top: 0,
+                                    child: Transform.rotate(
+                                      angle: 0.6,
+                                      child: Container(
+                                        width: 14,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: _isErasing ? Colors.blue : Colors.grey, width: 2.5),
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Container(height: 2.5, color: _isErasing ? Colors.blue : Colors.grey),
+                                            const SizedBox(height: 5),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    child: Container(
+                                      width: 26,
+                                      height: 2.5,
+                                      decoration: BoxDecoration(
+                                        color: _isErasing ? Colors.blue : Colors.grey,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () => setState(() => _isErasing = true),
+                            tooltip: 'Penghapus',
+                          ),
+                        ),
+                        const SizedBox(width: 4),
                         IconButton(
-                          icon: Icon(Icons.edit, size: 30, color: !_isErasing ? Colors.blue : Colors.grey),
-                          onPressed: () => setState(() => _isErasing = false),
-                          tooltip: 'Pensil',
+                          icon: Icon(Icons.undo, size: 30, color: _undoStack.isNotEmpty ? Colors.blue : Colors.grey),
+                          onPressed: _undoStack.isNotEmpty ? _undo : null,
+                          tooltip: 'Undo',
                         ),
                         IconButton(
-                          icon: Icon(Icons.cleaning_services, size: 30, color: _isErasing ? Colors.blue : Colors.grey),
-                          onPressed: () => setState(() => _isErasing = true),
-                          tooltip: 'Penghapus',
+                          icon: Icon(Icons.redo, size: 30, color: _redoStack.isNotEmpty ? Colors.blue : Colors.grey),
+                          onPressed: _redoStack.isNotEmpty ? _redo : null,
+                          tooltip: 'Redo',
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, size: 30, color: Colors.red),
@@ -261,6 +440,8 @@ class _WritingScreenState extends State<WritingScreen> {
                       behavior: HitTestBehavior.opaque,
                       onPanStart: (details) {
                         setState(() {
+                          _undoStack.add(List.from(_points));
+                          _redoStack.clear();
                           if (_isErasing) {
                             _erasePoints(details.localPosition);
                           } else {

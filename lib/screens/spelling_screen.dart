@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 import '../widgets/shared_background.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
+import '../widgets/result_dialog.dart';
 
 class SpellingScreen extends StatefulWidget {
   final String targetWord;
   final IconData imageIcon;
   final Color iconColor;
   final List<String> availableLetters;
+  final int level;
 
   const SpellingScreen({
     super.key,
@@ -16,6 +18,7 @@ class SpellingScreen extends StatefulWidget {
     required this.imageIcon,
     required this.iconColor,
     required this.availableLetters,
+    required this.level,
   });
 
   @override
@@ -32,20 +35,30 @@ class _SpellingScreenState extends State<SpellingScreen> {
       });
       if (typedLetters.length == widget.targetWord.length) {
         if (typedLetters.join('') == widget.targetWord) {
-          Get.snackbar(
-            'Hebat!',
-            'Kamu berhasil mengeja kata ${widget.targetWord}!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
+          showResultDialog(
+            isCorrect: true,
+            gameId: 'spelling',
+            gameName: 'Mengeja',
+            level: widget.level,
+            onReplay: () {
+              setState(() {
+                typedLetters.clear();
+              });
+              Get.back(); // close dialog
+            },
           );
         } else {
-          Get.snackbar(
-            'Ups!',
-            'Ejaannya belum tepat, coba lagi ya!',
-            backgroundColor: Colors.orange,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
+          showResultDialog(
+            isCorrect: false,
+            gameId: 'spelling',
+            gameName: 'Mengeja',
+            level: widget.level,
+            onReplay: () {
+              setState(() {
+                typedLetters.clear();
+              });
+              Get.back(); // close dialog
+            },
           );
         }
       }

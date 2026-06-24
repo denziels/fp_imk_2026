@@ -61,21 +61,21 @@ class LevelSelectionScreen extends StatelessWidget {
                         title: 'Huruf',
                         icon: Icons.abc,
                         color: Colors.redAccent,
-                        onTap: () => _navigateToActivity('A'),
+                        onTap: () => _navigateToActivity('A', 1),
                       ),
                       _buildLevelCard(
                         level: 'Level 2',
                         title: 'Suku Kata',
                         icon: Icons.text_fields,
                         color: Colors.orangeAccent,
-                        onTap: () => _navigateToActivity('BA'),
+                        onTap: () => _navigateToActivity('BA', 2),
                       ),
                       _buildLevelCard(
                         level: 'Level 3',
                         title: 'Kata',
                         icon: Icons.menu_book_outlined,
                         color: Colors.green,
-                        onTap: () => _navigateToActivity('BUKU'),
+                        onTap: () => _navigateToActivity('BUKU', 3),
                       ),
                     ],
                   ),
@@ -88,11 +88,11 @@ class LevelSelectionScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToActivity(String content) {
+  void _navigateToActivity(String content, int level) {
     if (activityType == 'tracing') {
-      Get.to(() => TracingScreen(content: content));
+      Get.to(() => TracingScreen(content: content, level: level));
     } else {
-      Get.to(() => WritingScreen(content: content));
+      Get.to(() => WritingScreen(content: content, level: level));
     }
   }
 

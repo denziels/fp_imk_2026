@@ -3,17 +3,20 @@ import 'package:get/get.dart';
 import '../widgets/shared_background.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
+import '../widgets/result_dialog.dart';
 
 class WordSearchScreen extends StatefulWidget {
   final int gridSize;
   final List<String> targetWords;
   final List<List<String>> grid;
+  final int level;
 
   const WordSearchScreen({
     super.key,
     required this.gridSize,
     required this.targetWords,
     required this.grid,
+    required this.level,
   });
 
   @override
@@ -52,12 +55,19 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
         selectedIndices.clear();
       });
       if (foundWords.length == widget.targetWords.length) {
-        Get.snackbar(
-          'Hebat!',
-          'Kamu menemukan semua kata!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
+        showResultDialog(
+          isCorrect: true,
+          gameId: 'word_search',
+          gameName: 'Cari Kata',
+          level: widget.level,
+          onReplay: () {
+            setState(() {
+              foundWords.clear();
+              currentSelection = "";
+              selectedIndices.clear();
+            });
+            Get.back();
+          },
         );
       }
     } else {

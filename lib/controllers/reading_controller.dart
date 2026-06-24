@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/tts_service.dart';
+import '../widgets/result_dialog.dart';
 
 class ReadingController extends GetxController {
   final int level;
@@ -221,9 +222,29 @@ class ReadingController extends GetxController {
     isCorrect.value = match;
     
     if (match) {
-      Get.find<TTSService>().autoSpeak("Benar! Bagus sekali.");
+      showResultDialog(
+        isCorrect: true,
+        gameId: 'reading',
+        gameName: 'Membaca',
+        level: level,
+        onReplay: () {
+          isCorrect.value = null;
+          spokenText.value = '';
+          Get.back();
+        },
+      );
     } else {
-      Get.find<TTSService>().autoSpeak("Salah! Coba baca lagi kata ini.");
+      showResultDialog(
+        isCorrect: false,
+        gameId: 'reading',
+        gameName: 'Membaca',
+        level: level,
+        onReplay: () {
+          isCorrect.value = null;
+          spokenText.value = '';
+          Get.back();
+        },
+      );
     }
   }
 

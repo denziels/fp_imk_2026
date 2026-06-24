@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import '../widgets/shared_background.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
+import '../widgets/result_dialog.dart';
 import '../utils/stroke_text_renderer.dart';
 
 class TracingScreen extends StatefulWidget {
   final String content;
+  final int level;
 
-  const TracingScreen({super.key, this.content = 'A'});
+  const TracingScreen({super.key, this.content = 'A', required this.level});
 
   @override
   State<TracingScreen> createState() => _TracingScreenState();
@@ -17,7 +19,27 @@ class TracingScreen extends StatefulWidget {
 
 class _TracingScreenState extends State<TracingScreen> {
   List<Offset?> _points = [];
+  List<List<Offset?>> _undoStack = [];
+  List<List<Offset?>> _redoStack = [];
   bool _isErasing = false;
+
+  void _undo() {
+    if (_undoStack.isNotEmpty) {
+      setState(() {
+        _redoStack.add(List.from(_points));
+        _points = _undoStack.removeLast();
+      });
+    }
+  }
+
+  void _redo() {
+    if (_redoStack.isNotEmpty) {
+      setState(() {
+        _undoStack.add(List.from(_points));
+        _points = _redoStack.removeLast();
+      });
+    }
+  }
 
   void _erasePoints(Offset position) {
     double eraserRadius = 20.0;
@@ -30,6 +52,8 @@ class _TracingScreenState extends State<TracingScreen> {
 
   void _clearCanvas() {
     setState(() {
+      _undoStack.add(List.from(_points));
+      _redoStack.clear();
       _points.clear();
     });
   }
@@ -72,12 +96,15 @@ class _TracingScreenState extends State<TracingScreen> {
         }
         
         if (minDistance > maxDeviation) {
-          Get.snackbar(
-            'Coba Lagi!',
-            'Coretan kamu keluar dari jalur huruf!',
-            backgroundColor: Colors.orange,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
+          showResultDialog(
+            isCorrect: false,
+            gameId: 'tracing',
+            gameName: 'Menebalkan',
+            level: widget.level,
+            onReplay: () {
+              _clearCanvas();
+              Get.back();
+            },
           );
           return;
         }
@@ -120,23 +147,29 @@ class _TracingScreenState extends State<TracingScreen> {
       // Require at least 75% coverage for EVERY individual stroke
       double coverage = passedForPolyline / polylineCheckpoints.length;
       if (coverage < 0.75) {
-        Get.snackbar(
-          'Coba Lagi!',
-          'Ada bagian garis yang terlewat atau belum tuntas ditebalkan!',
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
+        showResultDialog(
+          isCorrect: false,
+          gameId: 'tracing',
+          gameName: 'Menebalkan',
+          level: widget.level,
+          onReplay: () {
+            _clearCanvas();
+            Get.back();
+          },
         );
         return;
       }
     }
 
-    Get.snackbar(
-      'Hebat!',
-      'Kamu berhasil menebalkan teks dengan rapi!',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
+    showResultDialog(
+      isCorrect: true,
+      gameId: 'tracing',
+      gameName: 'Menebalkan',
+      level: widget.level,
+      onReplay: () {
+        _clearCanvas();
+        Get.back();
+      },
     );
   }
 
@@ -191,15 +224,83 @@ class _TracingScreenState extends State<TracingScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        Container(
+                          decoration: !_isErasing
+                              ? BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : null,
+                          child: IconButton(
+                            icon: Icon(Icons.edit, size: 30, color: !_isErasing ? Colors.blue : Colors.grey),
+                            onPressed: () => setState(() => _isErasing = false),
+                            tooltip: 'Pensil',
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          decoration: _isErasing
+                              ? BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : null,
+                          child: IconButton(
+                            icon: SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned(
+                                    top: 0,
+                                    child: Transform.rotate(
+                                      angle: 0.6,
+                                      child: Container(
+                                        width: 14,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: _isErasing ? Colors.blue : Colors.grey, width: 2.5),
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Container(height: 2.5, color: _isErasing ? Colors.blue : Colors.grey),
+                                            const SizedBox(height: 5),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    child: Container(
+                                      width: 26,
+                                      height: 2.5,
+                                      decoration: BoxDecoration(
+                                        color: _isErasing ? Colors.blue : Colors.grey,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () => setState(() => _isErasing = true),
+                            tooltip: 'Penghapus',
+                          ),
+                        ),
+                        const SizedBox(width: 4),
                         IconButton(
-                          icon: Icon(Icons.edit, size: 30, color: !_isErasing ? Colors.blue : Colors.grey),
-                          onPressed: () => setState(() => _isErasing = false),
-                          tooltip: 'Pensil',
+                          icon: Icon(Icons.undo, size: 30, color: _undoStack.isNotEmpty ? Colors.blue : Colors.grey),
+                          onPressed: _undoStack.isNotEmpty ? _undo : null,
+                          tooltip: 'Undo',
                         ),
                         IconButton(
-                          icon: Icon(Icons.cleaning_services, size: 30, color: _isErasing ? Colors.blue : Colors.grey),
-                          onPressed: () => setState(() => _isErasing = true),
-                          tooltip: 'Penghapus',
+                          icon: Icon(Icons.redo, size: 30, color: _redoStack.isNotEmpty ? Colors.blue : Colors.grey),
+                          onPressed: _redoStack.isNotEmpty ? _redo : null,
+                          tooltip: 'Redo',
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, size: 30, color: Colors.red),
@@ -229,6 +330,8 @@ class _TracingScreenState extends State<TracingScreen> {
                           behavior: HitTestBehavior.opaque,
                           onPanStart: (details) {
                             setState(() {
+                              _undoStack.add(List.from(_points));
+                              _redoStack.clear();
                               if (_isErasing) {
                                 _erasePoints(details.localPosition);
                               } else {

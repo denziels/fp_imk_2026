@@ -81,23 +81,8 @@ class ReadingScreen extends StatelessWidget {
                         style: const TextStyle(fontSize: 16, color: Colors.grey),
                         textAlign: TextAlign.center,
                       );
-                    } else if (controller.isCorrect.value == true) {
-                      return const Column(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.green, size: 60),
-                          SizedBox(height: 8),
-                          Text('Bagus Sekali! Benar!', style: TextStyle(fontSize: 24, color: Colors.green, fontWeight: FontWeight.bold)),
-                        ],
-                      );
                     } else {
-                      return Column(
-                        children: [
-                          const Icon(Icons.cancel, color: Colors.red, size: 60),
-                          const SizedBox(height: 8),
-                          const Text('Coba Lagi!', style: TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold)),
-                          Text('Terdengar: "${controller.spokenText.value}"', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                        ],
-                      );
+                      return const SizedBox.shrink();
                     }
                   }),
                   

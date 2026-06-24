@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math' as math;
 
-import 'main_menu_screen.dart';
+import 'login_screen.dart';
 import '../services/tts_service.dart';
 import '../widgets/tts_audio_buttons.dart';
 
@@ -46,59 +46,17 @@ class LandingScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 100),
-                  // ReadLexia Title with sharp solid shadow
-                  Stack(
-                    children: [
-                      // Black Outline / Solid Shadow
-                      Text(
-                        'ReadLexia',
-                        style: TextStyle(
- // Fallback to a playful font
-                          fontSize: 65,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2.0,
-                          foreground: Paint()
-                            ..style = PaintingStyle.stroke
-                            ..strokeWidth = 10
-                            ..color = Colors.black,
-                        ),
-                      ),
-                      // Solid Drop Shadow
-                      const Text(
-                        'ReadLexia',
-                        style: TextStyle(
-
-                          fontSize: 65,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2.0,
-                          color: Colors.transparent,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(5, 5),
-                              blurRadius: 0,
-                              color: Colors.black,
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Inner Color
-                      const Text(
-                        'ReadLexia',
-                        style: TextStyle(
-
-                          fontSize: 65,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2.0,
-                          color: purpleColor,
-                        ),
-                      ),
-                    ],
+                  // ReadLexia Title Image
+                  Image.asset(
+                    'assets/images/logossss.png',
+                    width: 350,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 30),
                   // Play Button
                   GestureDetector(
                     onTap: () {
-                      Get.to(() => const MainMenuScreen());
+                      Get.to(() => const LoginScreen());
                     },
                     child: Container(
                       width: 90,

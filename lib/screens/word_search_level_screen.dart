@@ -63,6 +63,7 @@ class WordSearchLevelScreen extends StatelessWidget {
                         ['I', 'U', 'S', 'T', 'M'],
                         ['X', 'W', 'N', 'O', 'P'],
                       ],
+                      level: 1,
                     ));
                   },
                 ),
@@ -84,6 +85,7 @@ class WordSearchLevelScreen extends StatelessWidget {
                         ['R', 'S', 'T', 'U', 'V', 'G', 'W'],
                         ['A', 'Y', 'A', 'M', 'P', 'Q', 'A'],
                       ],
+                      level: 2,
                     ));
                   },
                 ),
@@ -107,6 +109,7 @@ class WordSearchLevelScreen extends StatelessWidget {
                         ['M', 'A', 'T', 'A', 'H', 'A', 'R', 'I', 'X'],
                         ['M', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'],
                       ],
+                      level: 3,
                     ));
                   },
                 ),
